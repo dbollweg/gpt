@@ -1,6 +1,6 @@
 
 template <class mobj, class robj>
-__host__ __device__ void Proton2ptSite(const mobj &D, robj &result, const int polarization){
+accelerator void Proton2ptSite(const mobj &D, robj &result, const int polarization){
 
     Gamma g1(Gamma::Algebra::GammaX);
     Gamma g2(Gamma::Algebra::GammaY);
@@ -79,7 +79,7 @@ __host__ __device__ void Proton2ptSite(const mobj &D, robj &result, const int po
 }
 
 template <class mobj, class robj>
-__host__ __device__ void ProtonSeqSrcSite(const mobj &F, robj &seq_src, int polarization, int flavor){
+accelerator void ProtonSeqSrcSite(const mobj &F, robj &seq_src, int polarization, int flavor){
 
     // flavor == 1 : up
     // flavor == 2 : down
