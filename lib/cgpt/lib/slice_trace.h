@@ -255,7 +255,7 @@ inline void cgpt_slice_trace_DA_sum(const PVector<Lattice<vobj>> &Data,
       int lt = t % ld;
       if ( pt == grid->_processor_coor[orthogdim] ) {
         
-        result[n_base * Ngamma * fd + mu * fd + t] = TensorRemove(trace(lsSum[n_base * ld + lt]*Gamma(Gmu16[mu])));
+        result[n_base * Ngamma * fd + mu * fd + t] = TensorRemove(trace(lsSum[n_base * ld + lt]*Gamma(Gmu16[mu])*Gamma(Gmu16[0])));
         //result[n_base * fd + t] = TensorRemove(trace(lsSum[n_base * ld + lt]));
 
       } else {
