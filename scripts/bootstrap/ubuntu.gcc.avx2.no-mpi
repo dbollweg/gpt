@@ -83,7 +83,7 @@ then
 	cd build
 	../configure --enable-precision=double --enable-simd=AVX2 --disable-fermion-reps --enable-comms=none --disable-gparity --disable-unified CXXFLAGS=-fPIC --with-lime=${dep}/lime
 	cd Grid
-	make -j 4
+	make -j 8
 fi
 
 if [ ! -f ${root}/lib/cgpt/build/cgpt.so ];
