@@ -81,7 +81,7 @@ then
 	./bootstrap.sh
 	mkdir build
 	cd build
-	../configure --enable-precision=double --enable-simd=AVX2 --enable-comms=none --disable-gparity --disable-unified CXXFLAGS=-fPIC --with-lime=${dep}/lime
+	../configure --enable-simd=AVX2 CXXFLAGS=-fPIC --with-lime=${dep}/lime
 	cd Grid
 	make -j 8
 fi
