@@ -81,9 +81,9 @@ then
 	./bootstrap.sh
 	mkdir build
 	cd build
-	../configure --enable-simd=AVX2 CXXFLAGS=-fPIC --with-lime=${dep}/lime
+	../configure --enable-precision=double --enable-simd=AVX2 --enable-comms=none CXXFLAGS=-fPIC --with-lime=${dep}/lime
 	cd Grid
-	make -j 8
+	make -j 4
 fi
 
 if [ ! -f ${root}/lib/cgpt/build/cgpt.so ];
