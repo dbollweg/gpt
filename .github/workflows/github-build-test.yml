@@ -6,7 +6,7 @@ on:
 
 env:
   MAKE_BUILD_FLAGS: -j2
-  GRID_REPOSITORY_REF: feature/gpt
+  GRID_REPOSITORY_REF: gpt_proton
   CC: mpicc
   CXX: mpic++
   OMPI_CC: cc
@@ -106,7 +106,7 @@ jobs:
     - name: Clone Grid
       uses: actions/checkout@v3
       with:
-        repository: lehner/Grid
+        repository: dbollweg/Grid
         ref: ${{ env.GRID_REPOSITORY_REF }}
         path: Grid
 
