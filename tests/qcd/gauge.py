@@ -9,7 +9,7 @@ import numpy as np
 
 # load configuration
 rng = g.random("test")
-grid = g.grid([64, 64, 64, 64], g.double)
+grid = g.grid([8, 8, 8, 16], g.double)
 U = g.qcd.gauge.random(grid, rng)
 V = rng.element(g.lattice(U[0]))
 U_transformed = g.qcd.gauge.transformed(U, V)
