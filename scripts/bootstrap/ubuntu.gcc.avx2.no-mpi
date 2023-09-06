@@ -75,13 +75,13 @@ then
 	#
 	# Grid
 	#
-	git clone https://github.com/philomat/Grid.git
+	git clone https://github.com/dbollweg/Grid.git
 	cd Grid
-	git checkout scior
+	git checkout gpt_proton
 	./bootstrap.sh
 	mkdir build
 	cd build
-	../configure --enable-precision=double --enable-simd=AVX2 --disable-fermion-reps --enable-comms=none --disable-gparity --disable-unified CXXFLAGS=-fPIC --with-lime=${dep}/lime
+	../configure --enable-precision=double --enable-simd=AVX2 --enable-comms=none --disable-gparity --disable-unified CXXFLAGS=-fPIC --with-lime=${dep}/lime
 	cd Grid
 	make -j 8
 fi
@@ -92,7 +92,7 @@ then
 	# cgpt
 	#
 	cd ${root}/lib/cgpt
-	./make ${root}/dependencies/Grid/build 4
+	./make ${root}/dependencies/Grid/build 2
 fi
 
 cd ${root}/tests
