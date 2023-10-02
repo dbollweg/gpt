@@ -209,6 +209,28 @@ class wick:
 
             return expression(indices, _contract, _eval)
 
+    class color_matrix:
+        def __init__(self, color_matrix):
+            self.color_matrix = color_matrix
+            
+        def __call__(self, a, b):
+            
+            indices = [a,b]
+            def _eval(context, path):
+                t = tensor(basis(indices), context["n"])
+                for i in range(a[1]):
+                    for j in range(b[1]):
+                        v = self.color_matrix[i,j]
+                        if abs(v) != 0.0:
+                            t[i,j] = v
+                
+                return t                
+                
+            def _contract(context, path):
+                pass
+            
+            return expression(indices, _contract, _eval)
+                
     def sum(self, *arguments):
         expressions = [a for a in arguments if isinstance(a, expression)]
         indices = [a for a in arguments if not isinstance(a, expression)]

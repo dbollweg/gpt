@@ -38,11 +38,14 @@ def diquark(Q1, Q2):
     g.merge_color(R, D)
     return R
 
-def proton_seq_src(prop, src, tf):
+def proton_seq_src(prop, src, tf, flavor):
     prop = g.util.to_list(g.eval(prop))
     src  = g.util.to_list(g.eval(src))
- 
-    cgpt.fill_proton_seq_src(prop,src,tf)
+    #flavor convention:
+    #0: up-down
+    #1: up
+    #2: down
+    cgpt.fill_proton_seq_src(prop,src,tf, flavor)
    
 
 

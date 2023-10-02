@@ -33,8 +33,9 @@
     PyObject* _propagator;
     PyObject* _src;
     long tf;
+    long flavor;
 
-    if (!PyArg_ParseTuple(args, "OOl", &_propagator, &_src, &tf)) {
+    if (!PyArg_ParseTuple(args, "OOl", &_propagator, &_src, &tf, &flavor)) {
         return NULL;
     }
 
@@ -49,9 +50,12 @@
     cgpt_basis_fill(propagator, tmp1);
     cgpt_basis_fill(src, tmp2);
 
-    //fill the seq. src for the proton QPDF calculation, note in the function below we use a std. argument for the 
-    //isospin singlet, to change, add another integer in function call.
-    fill_seq_src<vSpinColourMatrix>(propagator, src, tf);     
+    //fill the seq. src for the proton QPDF/TMD calculation.
+    //flavor convention:
+    //0: up-down
+    //1: up
+    //2: down
+    fill_seq_src<vSpinColourMatrix>(propagator, src, tf, flavor);     
 
     return PyLong_FromLong(0);
 });
