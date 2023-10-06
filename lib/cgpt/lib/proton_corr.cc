@@ -35,7 +35,7 @@
     long tf;
     long flavor;
 
-    if (!PyArg_ParseTuple(args, "OOl", &_propagator, &_src, &tf, &flavor)) {
+    if (!PyArg_ParseTuple(args, "OOll", &_propagator, &_src, &tf, &flavor)) {
         return NULL;
     }
 
