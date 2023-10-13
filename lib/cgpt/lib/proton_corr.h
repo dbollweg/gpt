@@ -1,6 +1,34 @@
 #include "proton_util.h" 
 
 template<typename T>
+void fill_seq_src_full(const PVector<Lattice<T>> & propagator, PVector<Lattice<T>> & seq_src, const int flavor = 0) {
+  GridBase *grid = propagator[0].Grid();
+  const int Nd = grid->_ndimension;
+
+  VECTOR_VIEW_OPEN(seq_src, vseq_src, AcceleratorWrite);
+  VECTOR_VIEW_OPEN(propagator, vprop, AcceleratorRead);
+
+  typedef decltype(coalescedRead(vprop[0][0])) CalcElem;
+
+  for (int polarization=0; polarization<3; polarization++) {
+    std::cout << "Starting polarization " << polarization << std::endl;
+    
+    accelerator_for(ss, grid->oSites(), grid->Nsimd(), {
+      auto local_prop = coalescedRead(vprop[0][ss]);
+      CalcElem result = local_prop - local_prop; //result NEEDS to be zero, no idea how to do it more elegantly
+
+      ProtonSeqSrcSite(local_prop, result, polarization, flavor);
+      coalescedWrite(vseq_src[polarization][ss],result);
+    });
+    // seq_src[polarization] = seq_src[2];
+    std::cout << "I am at polarization " << polarization << std::endl;
+    }
+    VECTOR_VIEW_CLOSE(vseq_src);
+    VECTOR_VIEW_CLOSE(vprop);
+} 
+
+
+template<typename T>
 void fill_seq_src(const PVector<Lattice<T>> &propagator, PVector<Lattice<T>> &seq_src, const int tf, const int flavor=0)
 {
 

@@ -106,11 +106,13 @@ accelerator void ProtonSeqSrcSite(const mobj &F, robj &seq_src, int polarization
 
     iSpinMatrix<ComplexD> id = Zero();
     iSpinMatrix<ComplexD> P;
-
+    iSpinMatrix<ComplexD> G;
+    
 
     for (int i=0; i<Ns; i++)
        id()(i,i)()=1;
- 
+       
+    G = timesI(g2*g4*g5*id);
 
     P = 0.25* (id + g4 * id);     
 
@@ -143,9 +145,11 @@ accelerator void ProtonSeqSrcSite(const mobj &F, robj &seq_src, int polarization
     
 
     //auto GFG = (G * F * G);       //propagator sandwiched between C * gamma5 matrices
-    auto GFG = -1.0 * (g2 * ( g4 * (g5 * F * g2) * g4) *g5); 
+    // auto GFG = -1.0 * (g2 * ( g4 * (g5 * F * g2) * g4) *g5); 
+    auto GFG = transpose(G) * F * G;
 
-    auto GF = timesI(g2 * ( g4 * (g5 * F)));
+    // auto GF = timesI(g2 * ( g4 * (g5 * F)));
+    auto GF = transpose(G) * F;
     auto PFG = timesI(((PF * g2 ) * g4 ) *g5 );
 
     for (int ie_f=0; ie_f < 6 ; ie_f++){
@@ -184,9 +188,9 @@ accelerator void ProtonSeqSrcSite(const mobj &F, robj &seq_src, int polarization
 
                 if (flavor==2){
                     seq_src()(alpha_f, alpha_i)(a_f,a_i) += ee  * 
-                                GFG()(alpha_f,alpha_i)(b_f,b_i) * PF()(gamma_i, gamma_i)(c_f,c_i);
-                    seq_src()(alpha_f, alpha_i)(a_f,a_i) += ee  *
-                                GF()(alpha_f, gamma_i)(b_f,c_i) * PFG()(gamma_i, alpha_i)(c_f,b_i);
+                                GFG()(alpha_i,alpha_f)(b_i,b_f) * PF()(gamma_i, gamma_i)(c_i,c_f);
+                    seq_src()(alpha_f, alpha_i)(a_f,a_i) -= ee  *
+                                GF()(alpha_i, gamma_i)(b_i,c_f) * PFG()(gamma_i, alpha_f)(c_i,b_f);
                 }
 
 

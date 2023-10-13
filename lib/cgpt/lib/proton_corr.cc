@@ -59,3 +59,35 @@
 
     return PyLong_FromLong(0);
 });
+
+  EXPORT(fill_proton_seq_src_full,{
+
+    PyObject* _propagator;
+    PyObject* _src;
+    long tf;
+    long flavor;
+
+    if (!PyArg_ParseTuple(args, "OOl", &_propagator, &_src, &flavor)) {
+        return NULL;
+    }
+
+    std::vector<cgpt_Lattice_base*> tmp1;
+    std::vector<cgpt_Lattice_base*> tmp2;
+    cgpt_basis_fill(tmp1,_propagator);
+    cgpt_basis_fill(tmp2, _src);
+
+
+    PVector<Lattice<vSpinColourMatrix>> propagator;
+    PVector<Lattice<vSpinColourMatrix>> src;
+    cgpt_basis_fill(propagator, tmp1);
+    cgpt_basis_fill(src, tmp2);
+
+    //fill the seq. src for the proton QPDF/TMD calculation.
+    //flavor convention:
+    //0: up-down
+    //1: up
+    //2: down
+    fill_seq_src_full<vSpinColourMatrix>(propagator, src, flavor);     
+
+    return PyLong_FromLong(0);
+});

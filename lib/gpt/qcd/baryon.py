@@ -47,6 +47,10 @@ def proton_seq_src(prop, src, tf, flavor):
     #2: down
     cgpt.fill_proton_seq_src(prop,src,tf, flavor)
    
+def proton_seq_src_full(prop, src, flavor):
+    prop = g.util.to_list(g.eval(prop))
+    src = g.util.to_list(g.eval(src))
+    cgpt.fill_proton_seq_src_full(prop,src,flavor)
 
 
    
