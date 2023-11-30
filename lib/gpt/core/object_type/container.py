@@ -27,10 +27,16 @@ basis_sizes = sorted(
     [int(x[11:]) for x in filter(lambda x: x[0:11] == "ot_msinglet", lattice_types)]
 )
 
+
 ###
 # Helper
+max_fundamental_singlet_size = gpt.default.get_int("--max_fundamental_singlet_size", 100000)
+
+
 def decompose(n, ns, rank):
     for x in reversed(sorted(ns)):
+        if x > max_fundamental_singlet_size:
+            continue
         if n % x == 0:
             return [x] * ((n // x) ** rank)
     raise Exception("Cannot decompose %d in available fundamentals %s" % (n, ns))
@@ -112,6 +118,12 @@ class ot_vector_color(ot_base):
             self.__name__: (lambda: ot_singlet, (0, 0)),
         }
 
+    def compose(self, a, b):
+        return a + b
+
+    def infinitesimal_to_cartesian(self, a, da):
+        return da
+
 
 ###
 # Matrices and vectors of spin
@@ -138,6 +150,9 @@ class ot_matrix_spin(ot_base):
 
     def compose(self, a, b):
         return a + b
+
+    def infinitesimal_to_cartesian(self, a, da):
+        return da
 
     def defect(self, field):
         return 0.0
@@ -184,6 +199,12 @@ class ot_vector_spin(ot_base):
         self.otab = {self.__name__: (lambda: ot_matrix_spin(ndim), [])}
         self.itab = {self.__name__: (lambda: ot_singlet, (0, 0))}
 
+    def compose(self, a, b):
+        return a + b
+
+    def infinitesimal_to_cartesian(self, a, da):
+        return da
+
 
 ###
 # Matrices and vectors of both spin and color
@@ -218,6 +239,9 @@ class ot_matrix_spin_color(ot_base):
 
     def compose(self, a, b):
         return a + b
+
+    def infinitesimal_to_cartesian(self, a, da):
+        return da
 
     def identity(self):
         return gpt.matrix_spin_color(
@@ -255,6 +279,12 @@ class ot_vector_spin_color(ot_base):
             "ot_matrix_color(%d)" % (color_ndim): (lambda: self, None),  # TODO: add proper indices
             "ot_singlet": (lambda: self, None),
         }
+
+    def compose(self, a, b):
+        return a + b
+
+    def infinitesimal_to_cartesian(self, a, da):
+        return da
 
     def distribute(self, mat, dst, src, zero_lhs):
         src, dst = gpt.util.to_list(src), gpt.util.to_list(dst)

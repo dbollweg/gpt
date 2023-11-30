@@ -22,6 +22,7 @@ import numpy
 # need a basic container
 from gpt.core.object_type import ot_singlet
 
+
 ###
 # U1
 class ot_u_1_base(ot_singlet):
@@ -58,6 +59,11 @@ class ot_u_1_algebra(ot_u_1_base):
     def compose(self, a, b):
         return a + b
 
+    def infinitesimal_to_cartesian(self, A, dA):
+        dA = gpt(0.5 * dA + 0.5 * gpt.adj(dA))
+        dA.otype = self
+        return dA
+
     def generators(self, dt):
         return [complex(1.0, 0)]
 
@@ -80,6 +86,12 @@ class ot_u_1_group(ot_u_1_base):
 
     def compose(self, a, b):
         return a * b
+
+    def infinitesimal_to_cartesian(self, U, dU):
+        ret = gpt(dU * gpt.adj(U) / 1j)
+        ret = gpt(0.5 * ret + 0.5 * gpt.adj(ret))
+        ret.otype = self.cartesian()
+        return ret
 
     def defect(self, U):
         I = gpt.identity(U)

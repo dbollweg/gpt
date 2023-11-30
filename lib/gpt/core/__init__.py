@@ -17,6 +17,7 @@
 #    with this program; if not, write to the Free Software Foundation, Inc.,
 #    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
+import gpt.core.foundation
 from gpt.core.quadruple_precision import qfloat, qfloat_array, qcomplex, qcomplex_array
 from gpt.core.grid import grid, grid_from_description, full, redblack, general
 from gpt.core.precision import single, double, double_quadruple, precision, str_to_precision
@@ -41,6 +42,7 @@ from gpt.core.transform import (
     cshift,
     copy,
     norm2,
+    object_rank_norm2,
     inner_product,
     rank_inner_product,
     inner_product_norm2,
@@ -53,6 +55,7 @@ from gpt.core.transform import (
     slice_proton,
     indexed_sum,
     identity,
+    infinitesimal_to_cartesian,
     project,
     where,
     scale_per_coordinate,
@@ -115,5 +118,7 @@ import gpt.core.matrix
 import gpt.core.component
 import gpt.core.group
 import gpt.core.sparse_tensor
-import gpt.core.stencil
+import gpt.core.local_stencil
 from gpt.core.padding import padded_local_fields
+import gpt.core.stencil
+from gpt.core.einsum import einsum
