@@ -112,8 +112,12 @@ accelerator void ProtonSeqSrcSite(const mobj &F, robj &seq_src, int polarization
     for (int i=0; i<Ns; i++)
        id()(i,i)()=1;
        
-    G = timesI(g2*g4*g5*id);
+//    G = timesI(g2*g4*g5*id);
+    G = timesI(g5*id);
+    G = g4 * G;
+    G = g2 * G;
 
+    
     P = 0.25* (id + g4 * id);     
 
     if (polarization==0)
