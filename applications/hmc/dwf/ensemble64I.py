@@ -1,7 +1,6 @@
-#!/usr/bin/env python3
 import gpt as g
 import numpy as np
-import os, sys
+import os
 
 rng = g.random("test")
 
@@ -110,9 +109,11 @@ action_gauge_mom = g.qcd.scalar.action.mass_term()
 #action_gauge = g.qcd.gauge.action.iwasaki(2.13)
 action_gauge = g.qcd.gauge.action.iwasaki(2.25)
 
-rat = g.algorithms.rational.zolotarev_inverse_square_root(1.0**0.5, 11**0.5, 9)
+rat = g.algorithms.rational.zolotarev_inverse_square_root(0.02661**0.5, 11**0.5, 9)
 rat_fnc = g.algorithms.rational.rational_function(rat.zeros, rat.poles, rat.norm)
 
+g.message(rat)
+g.message(rat_fnc)
 # see params.py for parameter motivation
 hasenbusch_ratios = [  # Nf=2+1
     (0.45, 1.0, None, two_flavor_ratio, mk_chron(cg_e), mk_chron(cg_s)),
@@ -255,14 +256,14 @@ ip_fermion = sympl.update_p(U_mom, fermion_force)
 
 # mdint = sympl.OMF4(1, ip_fermion, sympl.OMF2(4, ip_gauge, iq))
 
-# mdint = sympl.OMF2(15, ip_fermion, sympl.OMF2(4, ip_gauge, iq))
+mdint = sympl.OMF2(15, ip_fermion, sympl.OMF2(4, ip_gauge, iq))
 
 # try a force-gradient
-ip_gauge_fg = sympl.update_p_force_gradient(U, iq, U_mom, ip_gauge, ip_gauge)
-ip_fermion_fg = sympl.update_p_force_gradient(U, iq, U_mom, ip_fermion, ip_fermion)
-mdint = sympl.OMF2_force_gradient(
-    15, ip_fermion, sympl.OMF2_force_gradient(4, ip_gauge, iq, ip_gauge_fg), ip_fermion_fg
-)
+#ip_gauge_fg = sympl.update_p_force_gradient(U, iq, U_mom, ip_gauge, ip_gauge)
+#ip_fermion_fg = sympl.update_p_force_gradient(U, iq, U_mom, ip_fermion, ip_fermion)
+#mdint = sympl.OMF2_force_gradient(
+#    15, ip_fermion, sympl.OMF2_force_gradient(4, ip_gauge, iq, ip_gauge_fg), ip_fermion_fg
+#)
 
 
 no_accept_reject = True
