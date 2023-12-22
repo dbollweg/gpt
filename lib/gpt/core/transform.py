@@ -215,8 +215,8 @@ def slice_trDA(src, rhs, mom, dim):
     rhs = gpt.util.to_list(gpt.eval(rhs))
 
     # check for consistent otype
-    assert all([src[0].otype == obj.otype for obj in src])
-    assert all([rhs[0].otype == obj.otype for obj in rhs])
+    assert all([src[0].otype.__name__ == obj.otype.__name__ for obj in src])
+    assert all([rhs[0].otype.__name__ == obj.otype.__name__ for obj in rhs])
 #    assert(rhs[0].otype == src[0].otype)
 
     result = cgpt.slice_traceDA(src, rhs, mom, dim)
