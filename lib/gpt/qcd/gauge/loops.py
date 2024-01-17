@@ -169,5 +169,4 @@ def field_strength(U, mu, nu):
 
     F = g.eval(U[mu] * v + g.cshift(v * U[mu], mu, -1))
     F @= 0.125 * (F - g.adj(F))
-    F @= (-1j) * g.qcd.gauge.project.traceless_anti_hermitian(F)
     return F
