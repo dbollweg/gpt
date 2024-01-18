@@ -13,7 +13,7 @@ epsilon = 0.001
 maxtau = 2
 g.message("Starting zeuthen flow with adaptive stepsize initial eps = ", epsilon)
 
-U_flowed = g.qcd.gauge.smear.zeuthen_flow_gauge.zeuthen_flow_gauge_adaptive(U,epsilon,maxTau=maxtau)
+U_flowed = g.qcd.gauge.smear.zeuthen_flow_gauge.zeuthen_flow_gauge_adaptive(U,epsilon,maxTau=maxtau, meas_interval=0)
 
 plaq = g.qcd.gauge.stencil.plaquette(U_flowed)
 

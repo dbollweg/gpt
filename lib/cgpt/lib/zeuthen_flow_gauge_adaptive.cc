@@ -37,6 +37,9 @@ EXPORT(Zeuthen_flow_gauge_adaptive,{
 
     typedef typename PeriodicGimplR::GaugeField GaugeLorentz;
     ZeuthenFlowAdaptive<PeriodicGimplR> ZF(init_epsilon, maxTau, tolerance, meas_interval);
+    if (meas_interval == 0) {
+      ZF.resetActions();
+    }
     ZF.smear(U_flow, U);
 
     // Transfrom back to stuff that gpt can deal with

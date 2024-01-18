@@ -13,7 +13,7 @@ epsilon = 0.1
 Nsteps = 20
 g.message("Starting zeuthen flow with fixed stepsize eps = ", epsilon, " and Nsteps = ", Nsteps)
 
-U_flowed = g.qcd.gauge.smear.zeuthen_flow_gauge.zeuthen_flow_gauge_fixedstepsize(U,epsilon, Nsteps)
+U_flowed = g.qcd.gauge.smear.zeuthen_flow_gauge.zeuthen_flow_gauge_fixedstepsize(U,epsilon, Nsteps,0)
 
 plaq = g.qcd.gauge.stencil.plaquette(U_flowed)
 
