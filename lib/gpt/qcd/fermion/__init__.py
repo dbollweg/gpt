@@ -22,6 +22,8 @@ import gpt.qcd.fermion.preconditioner
 import gpt.qcd.fermion.coarse
 import gpt.qcd.fermion.domain
 
+from gpt.qcd.fermion.flow import Fermionflow_fixedstepsize
+
 from gpt.qcd.fermion.register import register
 from gpt.qcd.fermion.operator import (
     gauge_independent_g5_hermitian,
