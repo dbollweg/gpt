@@ -35,6 +35,10 @@ from gpt.core.stack import get_call_stack
 from gpt.core.convert import convert
 from gpt.core.cshift_plan import cshift_plan
 from gpt.core.parallel_transport import path, parallel_transport, parallel_transport_matrix
+from gpt.core.zeuthen_flow_gauge import (
+    zeuthen_flow_gauge_fixedstepsize,
+    zeuthen_flow_gauge_adaptive,
+    )
 from gpt.core.transform import (
     gauge_fix,
     projectSU3,
