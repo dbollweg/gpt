@@ -57,7 +57,8 @@ for f in \
     ${test_path}/qcd/domain_wall.py \
     ${test_path}/qcd/sap.py \
     ${test_path}/qcd/mspcg.py \
-    ${test_path}/qcd/zeuthen_flow.py
+    ${test_path}/qcd/zeuthen_flow.py \
+    ${test_path}/qcd/zeuthen_flow_adaptive.py \
     ${test_path}/algorithms/implicitly_restarted_lanczos.py \
     ${test_path}/algorithms/arnoldi.py \
     ${test_path}/algorithms/solvers.py \
