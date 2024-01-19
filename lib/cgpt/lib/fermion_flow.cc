@@ -22,8 +22,9 @@ EXPORT(Fermionflow_fixedstepsize,{
     LatticeGaugeFieldD U_flow(grid);
     LatticeGaugeFieldD U(grid);
 
-    PVector<LatticeFermionD> chi_in;
+    PVector<LatticeFermionD> chi_in; //using PVector is a dirty hack, only ever need one LatticeFermionD input
     LatticeFermionD chi_out(grid);
+    auto grid_chi = chi_out.Grid();
 
     std::vector<cgpt_Lattice_base*> ferm_basis;
     std::cout << "fill ferm_basis from _chi" << std::endl;
@@ -48,16 +49,14 @@ EXPORT(Fermionflow_fixedstepsize,{
     cgpt_convert(_meas_interval, meas_interval);
     cgpt_convert(_Nckpoints,Nckpoints);
 
-    LatticeColourMatrixD xform1(grid);
-
     typedef typename PeriodicGimplR::GaugeField GaugeLorentz;
 
     FermionFlow<PeriodicGimplR,WilsonGaugeAction<PeriodicGimplR>,LatticeFermionD> WF(epsilon,Nstep,U,meas_interval,Nckpoints);
 
     // ZeuthenFlow<PeriodicGimplR> ZF(epsilon, Nstep, meas_interval);
-    // if (meas_interval == 0) {
-    //   ZF.resetActions();
-    // }
+    if (meas_interval == 0) {
+      WF.resetActions();
+    }
     WF.smear(U_flow, chi_out, U, chi_in[0]);
 
     // Transfrom back to stuff that gpt can deal with
@@ -66,7 +65,14 @@ EXPORT(Fermionflow_fixedstepsize,{
       auto lat = new cgpt_Lattice< iColourMatrix< vComplexD > >(grid);
       lat->l = PeekIndex<LorentzIndex>(U_flow,mu);
       U_prime[mu] = lat;
+      // delete lat;
     }
+    cgpt_Lattice_base* chi_flow;
+    auto tmp = new cgpt_Lattice<iSpinColourVector<vComplexD> >(grid_chi);
+    tmp->l = chi_out;
+    chi_flow = tmp;
+    // delete tmp;
+
 
     vComplexD vScalar = 0; // TODO: grid->to_decl()
     auto U_flow_return = Py_BuildValue("(l,[i,i,i,i],s,s,[N,N,N,N])", grid, grid->_gdimensions[0],
@@ -74,6 +80,8 @@ EXPORT(Fermionflow_fixedstepsize,{
       get_prec(vScalar).c_str(), "full", U_prime[0]->to_decl(), U_prime[1]->to_decl(),
       U_prime[2]->to_decl(), U_prime[3]->to_decl());
 
-    // auto phi_flow_return = Py_BuildValue("(l,[i,i,i,i],s,s,N)")
-    return U_flow_return;
+    auto chi_flow_return = Py_BuildValue("(l,[i,i,i,i],s,s,N)", grid_chi, grid_chi->_gdimensions[0],grid_chi->_gdimensions[1],grid_chi->_gdimensions[2],grid_chi->_gdimensions[3],get_prec(vScalar).c_str(), "full", chi_flow->to_decl());
+
+    
+    return Py_BuildValue("(OO)",U_flow_return,chi_flow_return);
 });
