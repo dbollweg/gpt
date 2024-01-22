@@ -27,11 +27,8 @@ EXPORT(Fermionflow_fixedstepsize,{
     auto grid_chi = chi_out.Grid();
 
     std::vector<cgpt_Lattice_base*> ferm_basis;
-    std::cout << "fill ferm_basis from _chi" << std::endl;
     cgpt_basis_fill(ferm_basis,_chi);
-    std::cout << "fill chi_in from ferm_basis" <<std::endl;
     cgpt_basis_fill(chi_in,ferm_basis);
-    std::cout << "basis fill successful" <<std::endl;
 
     for (int mu=0;mu<Nd;mu++) {
         auto l = get_pointer<cgpt_Lattice_base>(_U,"U",mu);
@@ -48,8 +45,6 @@ EXPORT(Fermionflow_fixedstepsize,{
     cgpt_convert(_Nstep, Nstep);
     cgpt_convert(_meas_interval, meas_interval);
     cgpt_convert(_Nckpoints,Nckpoints);
-
-    typedef typename PeriodicGimplR::GaugeField GaugeLorentz;
 
     FermionFlow<PeriodicGimplR,WilsonGaugeAction<PeriodicGimplR>,LatticeFermionD> WF(epsilon,Nstep,U,meas_interval,Nckpoints);
 
@@ -85,3 +80,81 @@ EXPORT(Fermionflow_fixedstepsize,{
     
     return Py_BuildValue("(OO)",U_flow_return,chi_flow_return);
 });
+
+
+
+
+
+EXPORT(Fermionflow_fixedstepsize_adjoint,{
+    
+    PyObject* _U;
+    PyObject* _chi;
+    PyObject* _epsilon;
+    PyObject* _Nstep;
+    PyObject* _meas_interval;
+    PyObject* _Nckpoints;
+    // bool symanzik_improved;
+
+
+    if (!PyArg_ParseTuple(args, "OOOOOO", &_U, &_chi, &_epsilon, &_Nstep, &_meas_interval, &_Nckpoints)) {
+      std::cout << "Error reading arguments" << std::endl;
+      return NULL;
+    }
+
+    auto grid = get_pointer<GridCartesian>(_U,"U_grid");
+
+    LatticeGaugeFieldD U_flow(grid);
+    LatticeGaugeFieldD U(grid);
+
+    PVector<LatticeFermionD> chi_in; //using PVector is a dirty hack, only ever need one LatticeFermionD input
+    LatticeFermionD chi_out(grid);
+    auto grid_chi = chi_out.Grid();
+    LatticeFermionD chi_tmp(grid);
+
+    std::vector<cgpt_Lattice_base*> ferm_basis;
+    cgpt_basis_fill(ferm_basis,_chi);
+    cgpt_basis_fill(chi_in,ferm_basis);
+
+    for (int mu=0;mu<Nd;mu++) {
+        auto l = get_pointer<cgpt_Lattice_base>(_U,"U",mu);
+        auto& Umu = compatible<iColourMatrix<vComplexD>>(l)->l;
+        PokeIndex<LorentzIndex>(U,Umu,mu);
+    }
+
+    // Now do zeuthen flow 
+    Real epsilon;
+    int Nstep;
+    int meas_interval;
+    int Nckpoints;
+    cgpt_convert(_epsilon, epsilon);
+    cgpt_convert(_Nstep, Nstep);
+    cgpt_convert(_meas_interval, meas_interval);
+    cgpt_convert(_Nckpoints,Nckpoints);
+
+
+    FermionFlow<PeriodicGimplR,WilsonGaugeAction<PeriodicGimplR>,LatticeFermionD> WF(epsilon,Nstep,U,meas_interval,Nckpoints);
+
+    // ZeuthenFlow<PeriodicGimplR> ZF(epsilon, Nstep, meas_interval);
+    if (meas_interval == 0) {
+      WF.resetActions();
+    }
+    WF.smear(U_flow, chi_tmp, U, chi_in[0]); 
+    WF.smear_adjoint(chi_out,chi_in[0]);
+    // Transfrom back to stuff that gpt can deal with
+    
+    cgpt_Lattice_base* chi_flow;
+    auto tmp = new cgpt_Lattice<iSpinColourVector<vComplexD> >(grid_chi);
+    tmp->l = chi_out;
+    chi_flow = tmp;
+    // delete tmp;
+
+
+    vComplexD vScalar = 0; // TODO: grid->to_decl()
+    
+    auto chi_flow_return = Py_BuildValue("(l,[i,i,i,i],s,s,N)", grid_chi, grid_chi->_gdimensions[0],grid_chi->_gdimensions[1],grid_chi->_gdimensions[2],grid_chi->_gdimensions[3],get_prec(vScalar).c_str(), "full", chi_flow->to_decl());
+
+    
+    return chi_flow_return;
+});
+
+

@@ -36,8 +36,23 @@ def Fermionflow_fixedstepsize(U, chi, epsilon=0.1, Nstep=10, meas_interval=1, Nc
     
     otype_chi = gpt.ot_vector_spin_color(4,3)
     t_obj, s_ot, s_pr = c[4]
-    assert s_pr == r[2]
+    assert s_pr == c[2]
     assert s_ot == "ot_vspin4color3"
     result_chi = gpt.lattice(U[0].grid, otype_chi, [t_obj])
         
     return result,result_chi
+
+def Fermionflow_fixedstepsize_adjoint(U, chi, epsilon=0.1, Nstep=10, meas_interval=1, Ncheckpoints=10):
+    field = {
+            "U_grid": U[0].grid.obj,
+            "U": [u.v_obj[0] for u in U],
+        }
+    c = cgpt.Fermionflow_fixedstepsize_adjoint(field, [chi], epsilon, Nstep, meas_interval, Ncheckpoints)
+    
+    otype_chi = gpt.ot_vector_spin_color(4,3)
+    t_obj, s_ot, s_pr = c[4]
+    assert s_pr == c[2]
+    assert s_ot == "ot_vspin4color3"
+    result_chi = gpt.lattice(U[0].grid, otype_chi, [t_obj])
+        
+    return result_chi
