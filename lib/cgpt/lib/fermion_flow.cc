@@ -1,5 +1,5 @@
 #include "lib.h"
-
+#include <typeinfo>
 
 EXPORT(Fermionflow_fixedstepsize,{
     
@@ -9,10 +9,10 @@ EXPORT(Fermionflow_fixedstepsize,{
     PyObject* _Nstep;
     PyObject* _meas_interval;
     PyObject* _Nckpoints;
-    // bool symanzik_improved;
+    PyObject* symanzik_improved;
 
 
-    if (!PyArg_ParseTuple(args, "OOOOOO", &_U, &_chi, &_epsilon, &_Nstep, &_meas_interval, &_Nckpoints)) {
+    if (!PyArg_ParseTuple(args, "OOOOOOO", &_U, &_chi, &_epsilon, &_Nstep, &_meas_interval, &_Nckpoints, &symanzik_improved)) {
       std::cout << "Error reading arguments" << std::endl;
       return NULL;
     }
@@ -41,19 +41,32 @@ EXPORT(Fermionflow_fixedstepsize,{
     int Nstep;
     int meas_interval;
     int Nckpoints;
+    bool do_improved;
     cgpt_convert(_epsilon, epsilon);
     cgpt_convert(_Nstep, Nstep);
     cgpt_convert(_meas_interval, meas_interval);
     cgpt_convert(_Nckpoints,Nckpoints);
+    cgpt_convert(symanzik_improved, do_improved);
 
-    FermionFlow<PeriodicGimplR,WilsonGaugeAction<PeriodicGimplR>,LatticeFermionD> WF(epsilon,Nstep,U,meas_interval,Nckpoints);
+    if (do_improved) {
+      FermionFlow<PeriodicGimplR,ZeuthenAction<PeriodicGimplR>,LatticeFermionD> ZF(epsilon,Nstep,U,meas_interval,Nckpoints);
 
-    // ZeuthenFlow<PeriodicGimplR> ZF(epsilon, Nstep, meas_interval);
-    if (meas_interval == 0) {
-      WF.resetActions();
+      // ZeuthenFlow<PeriodicGimplR> ZF(epsilon, Nstep, meas_interval);
+      if (meas_interval == 0) {
+        ZF.resetActions();
+      }
+      ZF.smear(U_flow, chi_out, U, chi_in[0]);
+    } else {
+      FermionFlow<PeriodicGimplR,WilsonGaugeAction<PeriodicGimplR>,LatticeFermionD> WF(epsilon,Nstep,U,meas_interval,Nckpoints);
+
+      // ZeuthenFlow<PeriodicGimplR> ZF(epsilon, Nstep, meas_interval);
+      if (meas_interval == 0) {
+        WF.resetActions();
+      }
+      WF.smear(U_flow, chi_out, U, chi_in[0]);
+
+
     }
-    WF.smear(U_flow, chi_out, U, chi_in[0]);
-
     // Transfrom back to stuff that gpt can deal with
     std::vector< cgpt_Lattice_base* > U_prime(4);
     for (int mu=0;mu<4;mu++) {
@@ -93,10 +106,10 @@ EXPORT(Fermionflow_fixedstepsize_adjoint,{
     PyObject* _Nstep;
     PyObject* _meas_interval;
     PyObject* _Nckpoints;
-    // bool symanzik_improved;
+    PyObject* symanzik_improved;
 
 
-    if (!PyArg_ParseTuple(args, "OOOOOO", &_U, &_chi, &_epsilon, &_Nstep, &_meas_interval, &_Nckpoints)) {
+    if (!PyArg_ParseTuple(args, "OOOOOOO", &_U, &_chi, &_epsilon, &_Nstep, &_meas_interval, &_Nckpoints, &symanzik_improved)) {
       std::cout << "Error reading arguments" << std::endl;
       return NULL;
     }
@@ -126,20 +139,32 @@ EXPORT(Fermionflow_fixedstepsize_adjoint,{
     int Nstep;
     int meas_interval;
     int Nckpoints;
+    bool do_improved;
     cgpt_convert(_epsilon, epsilon);
     cgpt_convert(_Nstep, Nstep);
     cgpt_convert(_meas_interval, meas_interval);
     cgpt_convert(_Nckpoints,Nckpoints);
+    cgpt_convert(symanzik_improved, do_improved);
 
+    if (do_improved) {
+      FermionFlow<PeriodicGimplR,ZeuthenAction<PeriodicGimplR>,LatticeFermionD> ZF(epsilon,Nstep,U,meas_interval,Nckpoints);
 
-    FermionFlow<PeriodicGimplR,WilsonGaugeAction<PeriodicGimplR>,LatticeFermionD> WF(epsilon,Nstep,U,meas_interval,Nckpoints);
+      // ZeuthenFlow<PeriodicGimplR> ZF(epsilon, Nstep, meas_interval);
+      if (meas_interval == 0) {
+        ZF.resetActions();
+      }
+      ZF.smear(U_flow, chi_tmp, U, chi_in[0]); 
+      ZF.smear_adjoint(chi_out,chi_in[0]);
+    } else {
+      FermionFlow<PeriodicGimplR,WilsonGaugeAction<PeriodicGimplR>,LatticeFermionD> WF(epsilon,Nstep,U,meas_interval,Nckpoints);
 
-    // ZeuthenFlow<PeriodicGimplR> ZF(epsilon, Nstep, meas_interval);
-    if (meas_interval == 0) {
-      WF.resetActions();
+      // ZeuthenFlow<PeriodicGimplR> ZF(epsilon, Nstep, meas_interval);
+      if (meas_interval == 0) {
+        WF.resetActions();
+      }
+      WF.smear(U_flow, chi_tmp, U, chi_in[0]); 
+      WF.smear_adjoint(chi_out,chi_in[0]);
     }
-    WF.smear(U_flow, chi_tmp, U, chi_in[0]); 
-    WF.smear_adjoint(chi_out,chi_in[0]);
     // Transfrom back to stuff that gpt can deal with
     
     cgpt_Lattice_base* chi_flow;
