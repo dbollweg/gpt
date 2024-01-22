@@ -1,5 +1,4 @@
 #include "lib.h"
-#include <typeinfo>
 
 EXPORT(Fermionflow_fixedstepsize,{
     
@@ -36,7 +35,7 @@ EXPORT(Fermionflow_fixedstepsize,{
         PokeIndex<LorentzIndex>(U,Umu,mu);
     }
 
-    // Now do zeuthen flow 
+   
     Real epsilon;
     int Nstep;
     int meas_interval;
@@ -51,7 +50,6 @@ EXPORT(Fermionflow_fixedstepsize,{
     if (do_improved) {
       FermionFlow<PeriodicGimplR,ZeuthenAction<PeriodicGimplR>,LatticeFermionD> ZF(epsilon,Nstep,U,meas_interval,Nckpoints);
 
-      // ZeuthenFlow<PeriodicGimplR> ZF(epsilon, Nstep, meas_interval);
       if (meas_interval == 0) {
         ZF.resetActions();
       }
@@ -59,7 +57,7 @@ EXPORT(Fermionflow_fixedstepsize,{
     } else {
       FermionFlow<PeriodicGimplR,WilsonGaugeAction<PeriodicGimplR>,LatticeFermionD> WF(epsilon,Nstep,U,meas_interval,Nckpoints);
 
-      // ZeuthenFlow<PeriodicGimplR> ZF(epsilon, Nstep, meas_interval);
+    
       if (meas_interval == 0) {
         WF.resetActions();
       }
@@ -73,16 +71,15 @@ EXPORT(Fermionflow_fixedstepsize,{
       auto lat = new cgpt_Lattice< iColourMatrix< vComplexD > >(grid);
       lat->l = PeekIndex<LorentzIndex>(U_flow,mu);
       U_prime[mu] = lat;
-      // delete lat;
+   
     }
     cgpt_Lattice_base* chi_flow;
     auto tmp = new cgpt_Lattice<iSpinColourVector<vComplexD> >(grid_chi);
     tmp->l = chi_out;
     chi_flow = tmp;
-    // delete tmp;
 
 
-    vComplexD vScalar = 0; // TODO: grid->to_decl()
+    vComplexD vScalar = 0; 
     auto U_flow_return = Py_BuildValue("(l,[i,i,i,i],s,s,[N,N,N,N])", grid, grid->_gdimensions[0],
       grid->_gdimensions[1], grid->_gdimensions[2], grid->_gdimensions[3],
       get_prec(vScalar).c_str(), "full", U_prime[0]->to_decl(), U_prime[1]->to_decl(),
@@ -134,7 +131,7 @@ EXPORT(Fermionflow_fixedstepsize_adjoint,{
         PokeIndex<LorentzIndex>(U,Umu,mu);
     }
 
-    // Now do zeuthen flow 
+    
     Real epsilon;
     int Nstep;
     int meas_interval;
@@ -149,16 +146,15 @@ EXPORT(Fermionflow_fixedstepsize_adjoint,{
     if (do_improved) {
       FermionFlow<PeriodicGimplR,ZeuthenAction<PeriodicGimplR>,LatticeFermionD> ZF(epsilon,Nstep,U,meas_interval,Nckpoints);
 
-      // ZeuthenFlow<PeriodicGimplR> ZF(epsilon, Nstep, meas_interval);
       if (meas_interval == 0) {
         ZF.resetActions();
       }
       ZF.smear(U_flow, chi_tmp, U, chi_in[0]); 
       ZF.smear_adjoint(chi_out,chi_in[0]);
+
     } else {
       FermionFlow<PeriodicGimplR,WilsonGaugeAction<PeriodicGimplR>,LatticeFermionD> WF(epsilon,Nstep,U,meas_interval,Nckpoints);
 
-      // ZeuthenFlow<PeriodicGimplR> ZF(epsilon, Nstep, meas_interval);
       if (meas_interval == 0) {
         WF.resetActions();
       }
@@ -171,10 +167,8 @@ EXPORT(Fermionflow_fixedstepsize_adjoint,{
     auto tmp = new cgpt_Lattice<iSpinColourVector<vComplexD> >(grid_chi);
     tmp->l = chi_out;
     chi_flow = tmp;
-    // delete tmp;
 
-
-    vComplexD vScalar = 0; // TODO: grid->to_decl()
+    vComplexD vScalar = 0; 
     
     auto chi_flow_return = Py_BuildValue("(l,[i,i,i,i],s,s,N)", grid_chi, grid_chi->_gdimensions[0],grid_chi->_gdimensions[1],grid_chi->_gdimensions[2],grid_chi->_gdimensions[3],get_prec(vScalar).c_str(), "full", chi_flow->to_decl());
 
