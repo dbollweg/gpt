@@ -1,28 +1,5 @@
-std::vector<Gamma::Algebra> Gmu4 ( {
-  Gamma::Algebra::GammaX,
-  Gamma::Algebra::GammaY,
-  Gamma::Algebra::GammaZ,
-  Gamma::Algebra::GammaT });
+#include "slice_trace_gpu.h"
 
-
-std::vector<Gamma::Algebra> Gmu16 ( {
-  Gamma::Algebra::Gamma5,
-  Gamma::Algebra::GammaT,
-  Gamma::Algebra::GammaTGamma5,
-  Gamma::Algebra::GammaX,
-  Gamma::Algebra::GammaXGamma5,
-  Gamma::Algebra::GammaY,
-  Gamma::Algebra::GammaYGamma5,
-  Gamma::Algebra::GammaZ,
-  Gamma::Algebra::GammaZGamma5,
-  Gamma::Algebra::Identity,
-  Gamma::Algebra::SigmaXT,
-  Gamma::Algebra::SigmaXY,
-  Gamma::Algebra::SigmaXZ,
-  Gamma::Algebra::SigmaYT,
-  Gamma::Algebra::SigmaYZ,
-  Gamma::Algebra::SigmaZT
-});
 
 // sliceSum from Grid but with vector of lattices as input and traces as output
 template<class vobj>
@@ -283,8 +260,8 @@ PyObject* cgpt_slice_traceDA(const PVector<Lattice<T>>& lhs, const PVector<Latti
   std::vector<sobj> result;
   // std::vector<scalar_type> result;
 //  printf("in cgpt_slice_trace1, before going into actual function \n");
-  cgpt_slice_trace_DA_sum(lhs, rhs, mom, result, dim);
-
+  cgpt_slice_trace_DA_sum_GPU(lhs, rhs, mom, result, dim);
+  // cgpt_slice_trace_DA_sum(lhs,rhs,mom,result,dim);
   int Nbasis = lhs.size();
   int Nmom = mom.size();
   int NGamma = Gmu16.size();
