@@ -47,7 +47,7 @@ std::vector<Gamma::Algebra> Gmu16 ( {
   Gamma::Algebra::SigmaZT
 });
 
-
+#if defined(GRID_CUDA)||defined(GRID_HIP)
 // extern gpuStream_t computeStream;
 template<class vobj>
 inline void cgpt_slice_trace_DA_sum_GPU(const PVector<Lattice<vobj>> &Data,
@@ -196,3 +196,4 @@ inline void cgpt_slice_trace_DA_sum_GPU(const PVector<Lattice<vobj>> &Data,
   grid->GlobalSumVector(ptr, words);
   //printf("######### inf cgpt_slice_trace_sum1, end\n");
 }
+#endif

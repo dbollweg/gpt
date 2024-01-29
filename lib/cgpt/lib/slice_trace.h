@@ -260,8 +260,13 @@ PyObject* cgpt_slice_traceDA(const PVector<Lattice<T>>& lhs, const PVector<Latti
   std::vector<sobj> result;
   // std::vector<scalar_type> result;
 //  printf("in cgpt_slice_trace1, before going into actual function \n");
+
+  #if defined(GRID_CUDA)||defined(GRID_HIP)
   cgpt_slice_trace_DA_sum_GPU(lhs, rhs, mom, result, dim);
-  // cgpt_slice_trace_DA_sum(lhs,rhs,mom,result,dim);
+  #else
+  cgpt_slice_trace_DA_sum(lhs,rhs,mom,result,dim);
+  #endif
+
   int Nbasis = lhs.size();
   int Nmom = mom.size();
   int NGamma = Gmu16.size();
