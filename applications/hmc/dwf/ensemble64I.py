@@ -2,7 +2,8 @@ import gpt as g
 import numpy as np
 import os
 
-rng = g.random("test")
+stream = g.default.get("--stream", None)
+rng = g.random(f"test{stream}")
 
 # cold start
 U = g.qcd.gauge.unit(g.grid([64, 64, 64, 128], g.double))
@@ -11,14 +12,16 @@ U = g.qcd.gauge.unit(g.grid([64, 64, 64, 128], g.double))
 latest_it = None
 it0 = 0
 dst = g.default.get("--root", None)
+g.message("Running with root dir: ", dst)
+g.message("Running on stream: ", stream)
 N = 4000
 for it in range(N):
-    if os.path.exists(f"{dst}/ckpoint_lat.{it}"):
+    if os.path.exists(f"{dst}/ckpoint_lat_{stream}.{it}"):
         latest_it = it
 
 if latest_it is not None:
-    g.copy(U, g.load(f"{dst}/ckpoint_lat.{latest_it}"))
-    rng = g.random(f"test{dst}{latest_it}", "vectorized_ranlux24_24_64")
+    g.copy(U, g.load(f"{dst}/ckpoint_lat_{stream}.{latest_it}"))
+    rng = g.random(f"test{dst}{latest_it}{stream}", "vectorized_ranlux24_24_64")
     it0 = latest_it + 1
 
 
@@ -297,5 +300,6 @@ for it in range(it0, N):
         # reset statistics
         log.reset()
         g.message("Reset log")
-    g.save(f"{dst}/ckpoint_lat.{it}", U, g.format.nersc())
+    g.save(f"{dst}/ckpoint_lat_{stream}.{it}", U, g.format.nersc())
     # g.save(f"{dst}/ckpoint_lat.{it}", U)
+
