@@ -145,7 +145,7 @@ inline void cgpt_slice_trace_DA_sum_GPU(const PVector<Lattice<vobj>> &Data,
             });
 
           //reduce using cub/hipcub library, queueing into computeStream to avoid having to sync
-          gpuErr = gpucub::DeviceReduce::Sum(helperArray, temp_storage_bytes, reduction_buffer_ptr, &d_out[r+nmom*rd+ngamma*rd*Nmom+nbasis*rd*Nmom*Ngamma], size, computeStream);
+          gpuErr = gpucub::DeviceReduce::Sum(helperArray, temp_storage_bytes, reduction_buffer_ptr, &d_out[r+rd*ngamma+rd*Ngamma*nmom+rd*Ngamma*Nmom*nbasis], size,computeStream);
           if (gpuErr != gpuSuccess) {
             std::cout << "Encountered error during cub::DeviceReduce::Sum(2)! Error: " << gpuErr << std::endl;
           }        
