@@ -65,14 +65,20 @@ class ot_singlet(ot_base):
     colortrace = (None, None, None)
     v_otype = ["ot_singlet"]
     mtab = {
-        "ot_singlet": (lambda: ot_singlet, None),
+        "ot_singlet": (lambda: ot_singlet(), None),
     }
 
-    def data_otype(self=None):
-        return ot_singlet
+    def data_otype(self):
+        return ot_singlet()
 
-    def identity():
+    def is_self_dual(self):
+        return True
+
+    def identity(self):
         return 1.0
+
+    def infinitesimal_to_cartesian(self, a, da):
+        return da
 
 
 ###
@@ -84,7 +90,7 @@ class ot_matrix_color(ot_base):
         self.shape = (ndim, ndim)
         self.transposed = (1, 0)
         self.spintrace = (None, None, None)  # do nothing
-        self.colortrace = (0, 1, lambda: ot_singlet)
+        self.colortrace = (0, 1, lambda: ot_singlet())
         self.v_otype = ["ot_mcolor%d" % ndim]  # cgpt data types
         self.mtab = {
             self.__name__: (lambda: self, (1, 0)),
@@ -115,7 +121,7 @@ class ot_vector_color(ot_base):
         }
         self.otab = {self.__name__: (lambda: ot_matrix_color(ndim), [])}
         self.itab = {
-            self.__name__: (lambda: ot_singlet, (0, 0)),
+            self.__name__: (lambda: ot_singlet(), (0, 0)),
         }
 
     def compose(self, a, b):
@@ -133,7 +139,7 @@ class ot_matrix_spin(ot_base):
         self.nfloats = 2 * ndim * ndim
         self.shape = (ndim, ndim)
         self.transposed = (1, 0)
-        self.spintrace = (0, 1, lambda: ot_singlet)
+        self.spintrace = (0, 1, lambda: ot_singlet())
         self.colortrace = (None, None, None)  # do nothing
         self.v_otype = ["ot_mspin%d" % ndim]
         self.mtab = {
@@ -197,7 +203,7 @@ class ot_vector_spin(ot_base):
             "ot_singlet": (lambda: self, None),
         }
         self.otab = {self.__name__: (lambda: ot_matrix_spin(ndim), [])}
-        self.itab = {self.__name__: (lambda: ot_singlet, (0, 0))}
+        self.itab = {self.__name__: (lambda: ot_singlet(), (0, 0))}
 
     def compose(self, a, b):
         return a + b
@@ -269,7 +275,7 @@ class ot_vector_spin_color(ot_base):
             ),
         }
         self.itab = {
-            self.__name__: (lambda: ot_singlet, ([0, 1], [0, 1])),
+            self.__name__: (lambda: ot_singlet(), ([0, 1], [0, 1])),
         }
         self.mtab = {
             "ot_singlet": (lambda: self, None),
@@ -346,7 +352,7 @@ class ot_vector_singlet(ot_base):
             "ot_singlet": (lambda: self, None),
         }
         self.itab = {
-            self.__name__: (lambda: ot_singlet, (0, 0)),
+            self.__name__: (lambda: ot_singlet(), (0, 0)),
         }
 
 
@@ -367,7 +373,7 @@ class ot_matrix_singlet(ot_base):
         self.shape = (n, n)
         self.transposed = (1, 0)
         self.spintrace = (None, None, None)
-        self.colortrace = (0, 1, lambda: ot_singlet)
+        self.colortrace = (0, 1, lambda: ot_singlet())
         self.vector_type = ot_vector_singlet(n)
         self.mtab = {
             self.__name__: (lambda: self, (1, 0)),

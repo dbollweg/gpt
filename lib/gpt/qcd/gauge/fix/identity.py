@@ -17,17 +17,14 @@
 #    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 import gpt as g
-from gpt.ml.layer import cshift
-from gpt.ml.activation import sigmoid
 
 
-class nearest_neighbor(cshift):
-    def __init__(self, grid, ot_input=g.ot_singlet(), ot_weights=g.ot_singlet(), activation=sigmoid):
-        nd = grid.nd
-        super().__init__(
-            grid,
-            ot_input,
-            ot_weights,
-            [(mu, 1) for mu in range(nd)] + [(mu, -1) for mu in range(nd)],
-            activation(grid, ot_input),
-        )
+def identity(U, mu=3):
+    # U'(x) = V(x) U_mu(x) Vdag(x+mu)
+    # V = [1, U[0], U[0] U[1], U[0] U[1] U[2], ...]
+    U_n = g.separate(U[mu], mu)
+    V_n = [g.identity(U_n[0])]
+    N = len(U_n)
+    for n in range(N - 1):
+        V_n.append(g(V_n[n] * U_n[n]))
+    return g.merge(V_n, mu)
