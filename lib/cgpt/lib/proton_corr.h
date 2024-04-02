@@ -13,7 +13,7 @@ void fill_seq_src_full(const PVector<Lattice<T>> & propagator, PVector<Lattice<T
   for (int polarization=0; polarization<3; polarization++) {
     std::cout << "Starting polarization " << polarization << std::endl;
     
-    accelerator_for(ss, grid->oSites(), grid->Nsimd(), {
+    accelerator_for(ss, grid->oSites(), (size_t)grid->Nsimd(), {
       auto local_prop = coalescedRead(vprop[0][ss]);
       CalcElem result = local_prop - local_prop; //result NEEDS to be zero, no idea how to do it more elegantly
 
@@ -51,7 +51,7 @@ void fill_seq_src(const PVector<Lattice<T>> &propagator, PVector<Lattice<T>> &se
       std::cout << "grid->oSites() = " << grid->oSites() << ", grid->Nsimd() = " << grid->Nsimd() << std::endl;
       std::cout << "size of seq_src = " << seq_src.size() << ", size if propagator = " << propagator.size() << std::endl;
 
-      accelerator_for(ss, grid->oSites(), grid->Nsimd(), {
+      accelerator_for(ss, grid->oSites(), (size_t)grid->Nsimd(), {
 
         auto local_prop = coalescedRead(vprop[0][ss]);
         //auto result = vseq_src[0][ss];
@@ -121,7 +121,7 @@ inline void sliceProton_sum(const PVector<Lattice<vobj>> prop,
   typedef decltype(coalescedRead(mom_v[0][0])) CalcElem;
 //  typedef vComplexD CalcElem;
 
-  accelerator_for(r, rd * Nbasis * Nmom, grid->Nsimd(), {
+  accelerator_for(r, rd * Nbasis * Nmom, (size_t)grid->Nsimd(), {
     //CalcElem elem;
     //CalcElem tmp;
     vComplexD elem;
