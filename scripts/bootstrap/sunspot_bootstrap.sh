@@ -10,7 +10,7 @@ function check_package {
 		exit 1
 	fi
 }
-module load oneapi/eng-compiler/2023.12.15.002 python py-numpy
+#module load oneapi/eng-compiler/2023.12.15.002 python py-numpy
 #module load python
 #module load py-numpy
 #module load PrgEnv-gnu craype-accel-amd-gfx90a amd-mixed rocm cray-python cray-mpich craype-x86-trento cray-fftw
@@ -99,8 +99,8 @@ then
         --enable-unified=no \
         MPICXX=mpicxx \
         CXX=icpx \
-        LDFLAGS="-fiopenmp -fsycl -fsycl-device-code-split=per_kernel -fsycl-device-lib=all -lze_loader -L$TOOLS/lib/ -fPIC" \
-        CXXFLAGS="-fiopenmp -fsycl-unnamed-lambda -fsycl -I$INSTALL/include -Wno-tautological-compare -I$TOOLS/include -fPIC"
+        LDFLAGS="-fiopenmp -fsycl -fsycl-device-code-split=per_kernel -fsycl-device-lib=all -lze_loader -fPIC" \
+        CXXFLAGS="-fiopenmp -fsycl-unnamed-lambda -fsycl -Wno-tautological-compare -fPIC"
 
 	cd Grid
 	make -j 32
