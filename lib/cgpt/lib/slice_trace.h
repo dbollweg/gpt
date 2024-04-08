@@ -1,5 +1,6 @@
+#pragma once
 #include "slice_trace_gpu.h"
-
+#include "Lattice_slicesum_core.h"
 
 // sliceSum from Grid but with vector of lattices as input and traces as output
 template<class vobj>
@@ -177,40 +178,51 @@ inline void cgpt_slice_trace_DA_sum(const PVector<Lattice<vobj>> &Data,
   int  stride = grid->_slice_stride[orthogdim];
   int ostride = grid->_ostride[orthogdim];
 
+  size_t subvol_size = e1*e2;
+  Lattice<vobj> tmp_vobj(grid);
+  Lattice<vobj> tmp_mom_vobj(grid);
+  //autoView(tmp_vobj_v, tmp_vobj, AcceleratorRead);
+  //autoView(tmp_mom_vobj_v, tmp_mom_vobj, AcceleratorRead);
+  //VECTOR_VIEW_OPEN(tmp_vobj, tmp_vobj_v, AcceleratorRead);
+  //VECTOR_VIEW_OPEN(tmp_mom_vobj, tmp_mom_vobj_v, AcceleratorRead);
   // sum over reduced dimension planes, breaking out orthog dir
   // Parallel over orthog direction
   //printf("in cgpt_slice_trace_sums1, before the Vector views are opened \n");
-  VECTOR_VIEW_OPEN(Data, Data_v, AcceleratorRead);
-  VECTOR_VIEW_OPEN(Data2, Data2_v, AcceleratorRead);
-  VECTOR_VIEW_OPEN(mom, mom_v, AcceleratorRead);
-  auto lvSum_p = &lvSum[0];
-  typedef decltype(coalescedRead(Data_v[0][0])) CalcElem;
-
+ // VECTOR_VIEW_OPEN(Data, Data_v, AcceleratorRead);
+ // VECTOR_VIEW_OPEN(Data2, Data2_v, AcceleratorRead);
+  //VECTOR_VIEW_OPEN(mom, mom_v, AcceleratorRead);
+  //auto lvSum_p = &lvSum[0];
+  //typedef decltype(coalescedRead(Data_v[0][0])) CalcElem;
+  Vector<vobj> mysum(rd);
   //printf("right before the accelerator for \n");
-  accelerator_for(r, rd * Nbasis * Nmom, (size_t)grid->Nsimd(), {
-    CalcElem elem = Zero();
-    CalcElem tmp;
+  for (int nbasis = 0; nbasis < Nbasis; nbasis++) {
 
-    int n_mombase = r / rd;
-    int n_mom = n_mombase % Nmom;
-    int n_base = n_mombase / Nmom;
+    //This is the expensive call; multiplying two spincolor matrices so we take them to the outermost loop.
+    //We use Grid's expression template engine instead of custom loops
+    tmp_vobj = Data2[0] * Data[nbasis];
 
+    for (int n_mom = 0; n_mom < Nmom; n_mom++){
 
-    int so = (r % rd) * ostride; // base offset for start of plane
-    for(int n = 0; n < e1; n++){
-      for(int b = 0; b < e2; b++){
-        int ss = so + n * stride + b;
-        elem += coalescedRead(Data2_v[0][ss])*coalescedRead(Data_v[n_base][ss])*coalescedRead(mom_v[n_mom][ss]);
-      }
-    }
-
+      tmp_mom_vobj = tmp_vobj * mom[n_mom];
+     
     
+    // Vector<vobj> mysum(rd);
 
-    coalescedWrite(lvSum_p[r], elem);
-  });
-  VECTOR_VIEW_CLOSE(Data2_v);
-  VECTOR_VIEW_CLOSE(Data_v);
-  VECTOR_VIEW_CLOSE(mom_v);
+     sliceSumReduction(tmp_mom_vobj,mysum, rd, e1,e2,stride,ostride, Nsimd);
+
+     
+     for (int r = 0; r<rd; r++) {
+	lvSum[r+rd*n_mom+rd*Nmom*nbasis] = mysum[r];
+     }
+
+     
+    }
+  }
+  //VECTOR_VIEW_CLOSE(Data2_v);
+  //VECTOR_VIEW_CLOSE(Data_v);
+  //VECTOR_VIEW_CLOSE(mom_v);
+ // VECTOR_VIEW_CLOSE(tmp_vobj_v);
+ // VECTOR_VIEW_CLOSE(tmp_mom_vobj_v);
 
   //printf("######### inf cgpt_slice_trace_sum1, before thread_for \n");
   thread_for(n_base, Nbasis*Nmom, {
