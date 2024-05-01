@@ -21,7 +21,7 @@ epsilon = 0.1
 Nsteps = 20
 g.message("Starting fermion flow with Wilson action and fixed stepsize eps = ", epsilon, " and Nsteps = ", Nsteps)
 
-U_flowed,chi_flowed = g.qcd.fermion.flow.Fermionflow_fixedstepsize(U,chi, epsilon, Nsteps, Ncheckpoints=1)
+U_flowed,chi_flowed = g.qcd.fermion.flow.Fermionflow_fixedstepsize(U,chi, epsilon, Nsteps)
 
 plaq = g.qcd.gauge.stencil.plaquette(U_flowed)
 
@@ -42,7 +42,7 @@ U_flowed,chi_prop_flowed = g.qcd.fermion.flow.Fermionflow_fixedstepsize(U, chi_p
 
 g.message("Testing adjoint flow:")
 
-eta_adjoint_flowed = g.qcd.fermion.flow.Fermionflow_fixedstepsize_adjoint(U,eta, 0.005, 400, Ncheckpoints=0)
+eta_adjoint_flowed = g.qcd.fermion.flow.Fermionflow_fixedstepsize_adjoint(U,eta, 0.005, 400)
 
 prod_t = g.inner_product(chi_flowed,eta)
 g.message(f"<chi(t)|eta(t)> = {prod_t}")
