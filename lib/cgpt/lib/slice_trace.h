@@ -58,7 +58,7 @@ inline void cgpt_slice_trace_sums(const PVector<Lattice<vobj>> &Data,
   auto lvSum_p = &lvSum[0];
   typedef decltype(coalescedRead(Data_v[0][0])) CalcElem;
 
-  accelerator_for(r, rd * Nbasis, grid->Nsimd(), {
+  accelerator_for(r, rd * Nbasis, (size_t)grid->Nsimd(), {
     CalcElem elem = Zero();
 
     int n_base = r / rd;
@@ -187,7 +187,7 @@ inline void cgpt_slice_trace_DA_sum(const PVector<Lattice<vobj>> &Data,
   typedef decltype(coalescedRead(Data_v[0][0])) CalcElem;
 
   //printf("right before the accelerator for \n");
-  accelerator_for(r, rd * Nbasis * Nmom, grid->Nsimd(), {
+  accelerator_for(r, rd * Nbasis * Nmom, (size_t)grid->Nsimd(), {
     CalcElem elem = Zero();
     CalcElem tmp;
 
@@ -356,7 +356,7 @@ inline void cgpt_slice_trace_QPDF_sum(const PVector<Lattice<vobj>> &Data,
   typedef decltype(coalescedRead(Data_v[0][0])) CalcElem;
 
   //printf("right before the accelerator for \n");
-  accelerator_for(r, rd * Nbasis * Nmom, grid->Nsimd(), {
+  accelerator_for(r, rd * Nbasis * Nmom, (size_t)grid->Nsimd(), {
     CalcElem elem = Zero();
     CalcElem tmp;
 
