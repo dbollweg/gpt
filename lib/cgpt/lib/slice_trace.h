@@ -1,6 +1,6 @@
 #pragma once
 #include "slice_trace_gpu.h"
-#include "Lattice_slicesum_core.h"
+//#include "Lattice_slicesum_core.h"
 
 // sliceSum from Grid but with vector of lattices as input and traces as output
 template<class vobj>

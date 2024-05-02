@@ -10,7 +10,7 @@ function check_package {
 		exit 1
 	fi
 }
-#module load oneapi/eng-compiler/2023.12.15.002 python py-numpy
+module load oneapi/eng-compiler/2023.12.15.002 python py-numpy
 #module load python
 #module load py-numpy
 #module load PrgEnv-gnu craype-accel-amd-gfx90a amd-mixed rocm cray-python cray-mpich craype-x86-trento cray-fftw
