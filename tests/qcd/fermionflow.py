@@ -32,6 +32,13 @@ g.message(type(chi_flowed))
 assert abs(plaq-1.0) < 1e-5 
 g.message("Test passed!")
 
+g.message("Testing fermion flow with LatticePropagatorD:")
+
+chi_prop = g.mspincolor(grid)
+rng.cnormal(chi_prop)
+chi_prop_flowed = g.mspincolor(grid)
+
+U_flowed,chi_prop_flowed = g.qcd.fermion.flow.Fermionflow_fixedstepsize(U, chi_prop, epsilon, Nsteps)
 
 g.message("Testing adjoint flow:")
 
