@@ -99,8 +99,8 @@ then
         --enable-unified=no \
         MPICXX=mpicxx \
         CXX=icpx \
-        LDFLAGS="-fiopenmp -fsycl -fsycl-device-code-split=per_kernel -fsycl-device-lib=all -lze_loader -L$TOOLS/lib/ -fPIC" \
-        CXXFLAGS="-fiopenmp -fsycl-unnamed-lambda -fsycl -I$INSTALL/include -Wno-tautological-compare -I$TOOLS/include -fPIC"
+        LDFLAGS="-fiopenmp -fsycl -fsycl-device-code-split=per_kernel -fsycl-device-lib=all -lze_loader -fPIC" \
+        CXXFLAGS="-fiopenmp -fsycl-unnamed-lambda -fsycl -Wno-tautological-compare -fPIC"
 
 	cd Grid
 	make -j 32
