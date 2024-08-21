@@ -47,14 +47,15 @@ python3 -m compileall ${root}/lib/gpt
 # Create dependencies and download
 #
 dep=${root}/dependencies
+
+if [ -d ${dep} ];
+then
+	echo "$dep already exists ; rm -rf $dep before bootstrapping again - skipping ahead"
+	    
+fi
 if [ ! -f ${dep}/Grid/build/Grid/libGrid.a ];
 then
 
-	if [ -d ${dep} ];
-	then
-	    echo "$dep already exists ; rm -rf $dep before bootstrapping again"
-	    exit 1
-	fi
 
 	mkdir -p ${dep}
 	cd ${dep}
