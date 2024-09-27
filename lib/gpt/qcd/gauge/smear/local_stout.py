@@ -61,7 +61,11 @@ def create_adjoint_projector(D, B, generators, nfactors):
         # now Dprime[d, c] = g(-g.trace(1j * generators[d] * itmp2))
         for d in range(ng):
             dst = d * ng + c
-            ti.matrix_trace_ab(code, ndim, dst, -1j, idst, igen + d, itmp2)
+            # ti.matrix_trace_ab(code, ndim, dst, -1j, idst, igen + d, itmp2)
+            # ti.matrix_trace_ab(code, ndim, dst, -1j, idst, itmp2, igen + d)
+            ti.matrix_trace_ab_sparseb(
+                code, ndim, dst, -1j, idst, itmp2, -(igen + d), generators[d]
+            )
 
     if local_stout_parallel_projector:
         segments = [(len(code) // ng, ng)]
@@ -149,7 +153,7 @@ def adjoint_to_fundamental(fund, adj, generators):
 
 
 class local_stout(local_diffeomorphism):
-    @params_convention(dimension=None, checkerboard=None, rho=None)
+    @params_convention(dimension=None, checkerboard=None, rho=None, staple_field=None)
     def __init__(self, params):
         self.params = params
         self.cache = {}
@@ -184,7 +188,21 @@ class local_stout(local_diffeomorphism):
         mask, imask = masks[self.params["checkerboard"]], masks[self.params["checkerboard"].inv()]
 
         fm = g(mask + 1e-15 * imask)
-        st = g.qcd.gauge.staple_sum(U, mu=self.params["dimension"], rho=rho)[0]
+        if False:
+            st = g.qcd.gauge.staple_sum(U, mu=self.params["dimension"], rho=rho)[0]
+        else:
+            st = g.lattice(U[0])
+            st[:] = 0
+            for nu in range(len(U)):
+                if nu == self.params["dimension"]:
+                    continue
+                st += self.params["rho"] * g.qcd.gauge.staple(U, self.params["dimension"], nu)
+            # stref = g.qcd.gauge.staple_sum(U, mu=self.params["dimension"], rho=rho)[0]
+            # g.message("TEST", g.norm2(st), g.norm2(st-stref))
+            # sys.exit(0)
+        sf = self.params["staple_field"]
+        if sf is not None:
+            st = sf(st)
         return g(st * fm), U, fm
 
     def __call__(self, fields):
@@ -378,6 +396,7 @@ class local_stout_action_log_det_jacobian(differentiable_functional):
     def __init__(self, stout):
         self.stout = stout
         self.verbose = stout.verbose
+        self.cache = {}
 
     def plaquette_stencil(self, U, rho, mu, nu):
         key = f"{U[0].grid.describe()}_{U[0].otype.__name__}_{mu}_{nu}_{rho}"
@@ -405,12 +424,19 @@ class local_stout_action_log_det_jacobian(differentiable_functional):
     def gradient(self, U, dU):
         assert dU == U
 
+        cache_key = f"{U[0].grid.describe()}_{U[0].otype.__name__}"
+
         t = g.timer("action_log_det_jacobian")
 
         cb = self.stout.params["checkerboard"]
 
         t("jac_comp")
-        cache_ab = {}
+        if cache_key not in self.cache:
+            self.cache[cache_key] = {"ab": {}, "gen": {}}
+
+        cache_ab = self.cache[cache_key]["ab"]
+        cache = self.cache[cache_key]["gen"]
+
         J_ac, NxxAd, Z_ac, M, fm, M_ab = self.stout.jacobian_components(U, cache_ab)
 
         grid = J_ac.grid
@@ -454,7 +480,6 @@ class local_stout_action_log_det_jacobian(differentiable_functional):
         PlaqL = g.identity(U[0])
         PlaqR = g(M * fm)
         FdetV = g.lattice(grid, adjoint_vector_otype)
-        cache = {}
 
         compute_adj_abc(PlaqL, PlaqR, MpInvJx, FdetV, generators, cache, cb)
 

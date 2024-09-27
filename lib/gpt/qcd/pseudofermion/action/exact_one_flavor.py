@@ -28,10 +28,14 @@ class exact_one_flavor_ratio(action_base):
     def __init__(self, fermion, m1, m2, inverter):
         self.m1 = m1
         self.m2 = m2
-        super().__init__([fermion(m1, m2), fermion(m1, m1)], inverter, fermion)
+        M12 = fermion(m1, m2)
+        M11 = fermion(m1, m1)
+        M12_adj = M12.adj()
+        M11_adj = M11.adj()
+        super().__init__([M12, M11, M12_adj, M11_adj], inverter, fermion)
 
     def matrix(self, fields):
-        M12, M11, U, phi = self._updated(fields)
+        M12, M11, M12_adj, M11_adj, U, phi = self._updated(fields)
 
         P12 = M12.propagator(self.inverter)
         P11 = M11.propagator(self.inverter)
@@ -110,36 +114,52 @@ class exact_one_flavor_ratio(action_base):
         return g.norm2(eta)
 
     def gradient(self, fields, dfields):
-        M12, M11, U, phi = self._updated(fields)
+        M12, M11, M12_adj, M11_adj, U, phi = self._updated(fields)
 
         frc = self._allocate_force(U)
+
+        g.barrier()
+        g.message("checkmark 0")
+        g.barrier()
+        
+        inv_M12_adj = self.inverter(M12_adj)
+
+        g.barrier()
+        g.message("checkmark 1")
+        g.barrier()
+        
+        inv_M11_adj = self.inverter(M11_adj)
+
+        g.barrier()
+        g.message("checkmark 2")
+        g.barrier()
+        
 
         m1 = self.m1
         m2 = self.m2
 
-        w_plus = g(
-            self.inverter(M12.adj())
-            * M12.R
-            * g.gamma[5]
-            * M12.ImportUnphysicalFermion
-            * Pplus
-            * phi
-        )
-        w_minus = g(
-            self.inverter(M11.adj())
-            * M11.R
-            * g.gamma[5]
-            * M11.ImportUnphysicalFermion
-            * Pminus
-            * phi
-        )
+        w_plus = g(inv_M12_adj * M12.R * g.gamma[5] * M12.ImportUnphysicalFermion * Pplus * phi)
 
+        g.barrier()
+        g.message("checkmark 3")
+        g.barrier()
+        
+        w_minus = g(inv_M11_adj * M11.R * g.gamma[5] * M11.ImportUnphysicalFermion * Pminus * phi)
+
+        g.barrier()
+        g.message("checkmark 4")
+        g.barrier()
+        
         w2_plus = g(g.gamma[5] * M12.R * M12.Dminus.adj() * w_plus)
         w3_plus = g(Pplus * phi)
 
         w2_minus = g(g.gamma[5] * M11.R * M11.Dminus.adj() * w_minus)
         w3_minus = g(Pminus * phi)
 
+        g.barrier()
+        g.message("checkmark 5")
+        g.barrier()
+        
         self._accumulate(frc, M12.M_projected_gradient(w_plus, w2_plus), m1 - m2)
         self._accumulate(
             frc,

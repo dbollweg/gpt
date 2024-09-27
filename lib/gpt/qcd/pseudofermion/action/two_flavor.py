@@ -64,7 +64,8 @@ class two_flavor_base(action_base):
             if mu < len(fields) - 1:
                 dS.append(g.qcd.gauge.project.traceless_hermitian(frc[mu]))
             else:
-                raise Exception("not implemented")
+                dS.append(None)
+                # raise Exception("not implemented")
         return dS
 
 
@@ -135,6 +136,7 @@ class two_flavor_ratio_base(action_base):
     def __init__(self, M, inverter, operator):
         assert len(M) == 2
         super().__init__(M, inverter, operator)
+        M1, M2 = M
 
     def __call__(self, fields):
         M1, M2, U, phi = self._updated(fields)
@@ -142,6 +144,7 @@ class two_flavor_ratio_base(action_base):
         psi = g.lattice(phi)
         psi @= self.operator.M(M2) * phi
         chi = g.lattice(phi)
+
         chi @= self.inverter(self.operator.MMdag(M1)) * psi
         return g.inner_product(psi, chi).real
 
@@ -180,7 +183,8 @@ class two_flavor_ratio_base(action_base):
             if mu < len(fields) - 1:
                 dS.append(g.qcd.gauge.project.traceless_hermitian(frc[mu]))
             else:
-                raise Exception("not implemented")
+                # raise Exception("not implemented")
+                dS.append(None)
         return dS
 
 
