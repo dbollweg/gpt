@@ -11,7 +11,7 @@ function check_package {
 	fi
 }
 #module load oneapi/eng-compiler/2023.12.15.002 python py-numpy
-module load python py-numpy fftw
+module load python py-numpy fftw mpich/51.2/icc-all-deterministic-pmix-gpu
 #module load python
 #module load py-numpy
 #module load PrgEnv-gnu craype-accel-amd-gfx90a amd-mixed rocm cray-python cray-mpich craype-x86-trento cray-fftw
