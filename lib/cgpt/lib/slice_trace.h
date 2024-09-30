@@ -168,8 +168,8 @@ inline void cgpt_slice_trace_DA_sum(const PVector<Lattice<vobj>> &Data,
   int ld = grid->_ldimensions[orthogdim];
   int rd = grid->_rdimensions[orthogdim];
 
-  Vector<vobj> lvSum(rd * Nbasis * Nmom);         // will locally sum vectors first
-  Vector<sobj> lsSum(ld * Nbasis * Nmom, Zero()); // sum across these down to scalars
+  std::vector<vobj> lvSum(rd * Nbasis * Nmom);         // will locally sum vectors first
+  std::vector<sobj> lsSum(ld * Nbasis * Nmom, Zero()); // sum across these down to scalars
   result.resize(fd * Nbasis * Ngamma * Nmom);              // And then global sum to return the same vector to every node
   //result.resize(fd * Nbasis);
 
@@ -193,7 +193,7 @@ inline void cgpt_slice_trace_DA_sum(const PVector<Lattice<vobj>> &Data,
   //VECTOR_VIEW_OPEN(mom, mom_v, AcceleratorRead);
   //auto lvSum_p = &lvSum[0];
   //typedef decltype(coalescedRead(Data_v[0][0])) CalcElem;
-  Vector<vobj> mysum(rd);
+  std::vector<vobj> mysum(rd);
   //printf("right before the accelerator for \n");
   for (int nbasis = 0; nbasis < Nbasis; nbasis++) {
 
